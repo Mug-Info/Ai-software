@@ -2,9 +2,7 @@
   "title": "💌 Celebrating You! Happy Women's Day",
   "subtitle": "Elegant, ethereal, contemporary — built for mobile → desktop.",
   "images": [
-    {"src": "images/1.jpg", "alt": "First"},
-    {"src": "images/2.jpg", "alt": "Second"},
-    {"src": "images/3.jpg", "alt": "Third"}
+    {"src": "images/1.jpg", "alt": "First"}
   ],
   "message": {
     "desktop": [

@@ -1,0 +1,904 @@
+<!--
+Modern Glass-Themed Responsive Online Postcard
+Copyright (C) 2025
+
+This project is licensed under the GNU GPL v3.0.
+You should have received a copy of the GNU General Public License along with this program.
+If not, see <https://www.gnu.org/licenses/>.
+-->
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Modern Glass Postcard</title>
+  <meta name="color-scheme" content="light dark" />
+  <style>
+    :root{
+      /* Default: subtle light mode */
+      --bg0: #f6f7fb;
+      --bg1: #eef2ff;
+      --ink: #101827;
+      --muted: rgba(16,24,39,.72);
+
+      --glass: rgba(255,255,255,.55);
+      --glass-strong: rgba(255,255,255,.72);
+      --stroke: rgba(255,255,255,.6);
+      --shadow: 0 14px 40px rgba(16,24,39,.12);
+      --shadow-soft: 0 10px 26px rgba(16,24,39,.10);
+
+      --accent: #5b7cfa;
+      --accent2: #8b5cf6;
+
+      --radius-xl: 26px;
+      --radius-lg: 18px;
+      --blur: 18px;
+    }
+    [data-theme="dark"]{
+      --bg0: #070a12;
+      --bg1: #0b1220;
+      --ink: rgba(255,255,255,.92);
+      --muted: rgba(255,255,255,.70);
+
+      --glass: rgba(17,25,40,.42);
+      --glass-strong: rgba(17,25,40,.58);
+      --stroke: rgba(255,255,255,.14);
+      --shadow: 0 18px 50px rgba(0,0,0,.45);
+      --shadow-soft: 0 14px 30px rgba(0,0,0,.35);
+
+      --accent: #7aa2ff;
+      --accent2: #b58cff;
+      --blur: 22px;
+    }
+
+    *{ box-sizing:border-box; }
+    html,body{ height:100%; }
+    body{
+      margin:0;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
+      color: var(--ink);
+      background: radial-gradient(1200px 700px at 15% 20%, rgba(91,124,250,.22), transparent 60%),
+                  radial-gradient(900px 600px at 85% 30%, rgba(139,92,246,.18), transparent 55%),
+                  linear-gradient(180deg, var(--bg0), var(--bg1));
+      overflow:hidden;
+    }
+
+    /* Ethereal floating blobs */
+    .blobs{
+      position: fixed;
+      inset: -20vh -10vw;
+      pointer-events:none;
+      z-index:-1;
+      filter: blur(40px);
+      opacity:.65;
+    }
+    .blob{
+      position:absolute;
+      width: 55vmax;
+      height: 55vmax;
+      border-radius: 999px;
+      background: radial-gradient(circle at 30% 30%, rgba(91,124,250,.55), transparent 55%),
+                  radial-gradient(circle at 70% 70%, rgba(139,92,246,.45), transparent 60%);
+      transform: translate3d(0,0,0);
+      animation: floaty 18s ease-in-out infinite;
+    }
+    .blob:nth-child(2){
+      width: 45vmax; height:45vmax;
+      left: 55%;
+      top: 18%;
+      animation-duration: 22s;
+      opacity:.8;
+    }
+    .blob:nth-child(3){
+      width: 40vmax; height:40vmax;
+      left: 5%;
+      top: 55%;
+      animation-duration: 26s;
+      opacity:.75;
+    }
+    @keyframes floaty{
+      0%,100%{ transform: translate(0,0) scale(1); }
+      50%{ transform: translate(3vw,-2vh) scale(1.03); }
+    }
+
+    /* Layout shell */
+    .wrap{
+      max-width: 1100px;
+      margin: 0 auto;
+      padding:
+        calc(14px + env(safe-area-inset-top))
+        calc(14px + env(safe-area-inset-right))
+        calc(14px + env(safe-area-inset-bottom))
+        calc(14px + env(safe-area-inset-left));
+      height: 100dvh; /* fixed, no page scroll */
+      display:flex;
+      flex-direction:column;
+      gap: 12px;
+    }
+
+    header{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      margin: 0;
+      flex: 0 0 auto;
+    }
+
+    .brand{
+      display:flex;
+      flex-direction:column;
+      gap:2px;
+      min-width:0;
+    }
+    .brand h1{
+      font-size: clamp(18px, 3.2vw, 24px);
+      line-height:1.15;
+      margin:0;
+      letter-spacing:-.02em;
+      font-weight:700;
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+    }
+    .brand p{
+      margin:0;
+      color: var(--muted);
+      font-size: 13px;
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+    }
+
+    .top-actions{
+      display:flex;
+      align-items:center;
+      gap:10px;
+    }
+
+    .chip{
+      border: 1px solid var(--stroke);
+      background: var(--glass);
+      backdrop-filter: blur(var(--blur));
+      -webkit-backdrop-filter: blur(var(--blur));
+      box-shadow: var(--shadow-soft);
+      border-radius: 999px;
+      padding: 10px 12px;
+      display:flex;
+      align-items:center;
+      gap:8px;
+    }
+    .chip button{
+      border: 0;
+      background: transparent;
+      color: var(--ink);
+      cursor:pointer;
+      display:grid;
+      place-items:center;
+      width: 34px;
+      height: 34px;
+      border-radius: 999px;
+      transition: transform .2s ease, background .2s ease;
+    }
+    .chip button:hover{ background: rgba(255,255,255,.18); transform: translateY(-1px); }
+    [data-theme="dark"] .chip button:hover{ background: rgba(255,255,255,.08); }
+    .chip span{
+      font-size: 13px;
+      color: var(--muted);
+      user-select:none;
+    }
+
+    .card{
+      border: 1px solid var(--stroke);
+      background: var(--glass);
+      backdrop-filter: blur(var(--blur));
+      -webkit-backdrop-filter: blur(var(--blur));
+      box-shadow: var(--shadow);
+      border-radius: var(--radius-xl);
+      overflow:hidden;
+    }
+
+    .grid{
+      flex: 1 1 auto;
+      min-height: 0;
+      display:grid;
+      gap: 14px;
+      grid-template-columns: 1fr;
+      grid-template-rows: 1.15fr .85fr; /* mobile: slider over message+music */
+    }
+
+    @media (min-width: 900px){
+      .grid{
+        grid-template-columns: 1.15fr .85fr; /* desktop: two columns */
+        grid-template-rows: 1fr;
+        align-items: stretch;
+      }
+    }
+
+    /* Image slider */
+    .slider{
+      position:relative;
+      height: 100%;
+      min-height: 0;
+      background: rgba(255,255,255,.12);
+    }
+    .slides{
+      height:100%;
+      display:flex;
+      transition: transform .65s cubic-bezier(.2,.8,.2,1);
+      will-change: transform;
+    }
+    .slide{
+      flex: 0 0 100%;
+      height:100%;
+      position:relative;
+    }
+    .slide img{
+      width:100%;
+      height:100%;
+      object-fit: cover;
+      display:block;
+    }
+    .slide::after{
+      content:"";
+      position:absolute;
+      inset:0;
+      background:
+        radial-gradient(800px 300px at 70% 20%, rgba(255,255,255,.16), transparent 50%),
+        linear-gradient(180deg, rgba(0,0,0,.04), rgba(0,0,0,.18));
+      pointer-events:none;
+    }
+    [data-theme="dark"] .slide::after{
+      background:
+        radial-gradient(800px 300px at 70% 20%, rgba(255,255,255,.10), transparent 55%),
+        linear-gradient(180deg, rgba(0,0,0,.15), rgba(0,0,0,.42));
+    }
+
+    .slider-ui{
+      position:absolute;
+      inset: 12px 12px auto 12px;
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:10px;
+      pointer-events:none;
+    }
+    .pill{
+      pointer-events:auto;
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      padding: 10px 12px;
+      border-radius: 999px;
+      border: 1px solid var(--stroke);
+      background: rgba(255,255,255,.35);
+      backdrop-filter: blur(var(--blur));
+      -webkit-backdrop-filter: blur(var(--blur));
+      box-shadow: var(--shadow-soft);
+      color: var(--ink);
+      font-size: 13px;
+    }
+    [data-theme="dark"] .pill{ background: rgba(17,25,40,.45); }
+
+    .navbtn{
+      pointer-events:auto;
+      border: 1px solid var(--stroke);
+      background: rgba(255,255,255,.35);
+      backdrop-filter: blur(var(--blur));
+      -webkit-backdrop-filter: blur(var(--blur));
+      color: var(--ink);
+      border-radius: 999px;
+      width: 44px;
+      height: 44px;
+      cursor:pointer;
+      display:grid;
+      place-items:center;
+      transition: transform .2s ease, background .2s ease;
+      box-shadow: var(--shadow-soft);
+    }
+    [data-theme="dark"] .navbtn{ background: rgba(17,25,40,.45); }
+    .navbtn:hover{ transform: translateY(-1px); background: rgba(255,255,255,.46); }
+    [data-theme="dark"] .navbtn:hover{ background: rgba(17,25,40,.58); }
+    .navbtn:active{ transform: translateY(0px) scale(.98); }
+
+    .dots{
+      position:absolute;
+      inset: auto 0 14px 0;
+      display:flex;
+      justify-content:center;
+      gap:8px;
+      pointer-events:none;
+    }
+    .dot{
+      pointer-events:auto;
+      width: 9px;
+      height: 9px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,.65);
+      background: rgba(255,255,255,.35);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      cursor:pointer;
+      transition: transform .2s ease, width .2s ease, opacity .2s ease;
+      opacity: .7;
+    }
+    [data-theme="dark"] .dot{
+      border-color: rgba(255,255,255,.22);
+      background: rgba(255,255,255,.12);
+    }
+    .dot[aria-current="true"]{
+      width: 22px;
+      opacity: 1;
+      transform: translateY(-1px);
+    }
+
+    /* Right side: message + player */
+    .stack{
+      display:grid;
+      gap: 14px;
+      grid-template-rows: 1fr auto;
+      min-height: 0;
+      height: 100%;
+    }
+
+    .panel{
+      padding: 18px;
+      min-height: 0;
+      display:flex;
+      align-items:center;
+    }
+
+    /* Message: two versions (mobile single-line, desktop multi-line) */
+    .message{
+      width: 100%;
+      color: var(--ink);
+      font-size: 15px;
+      line-height: 1.6;
+    }
+    .message-desktop{
+      display:none;
+      white-space: pre-wrap; /* keep line breaks */
+    }
+    .message-mobile{
+      display:block;
+      white-space: nowrap; /* single line */
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    @media (min-width: 900px){
+      .message-desktop{ display:block; }
+      .message-mobile{ display:none; }
+    }
+
+    @media (max-width: 899px){
+      .brand p{ display:none; }
+      .chip{ padding: 8px 10px; }
+      .chip button{ width: 32px; height: 32px; }
+      .grid{ gap: 12px; }
+      .message{ font-size: 14px; }
+    }
+
+    /* Music player */
+    .player{
+      padding: 16px 18px 18px;
+      min-height: 160px;
+      height: clamp(160px, 22vh, 200px);
+      display:flex;
+      flex-direction:column;
+      justify-content:center;
+    }
+    @media (min-width: 900px){
+      .player{ height: clamp(180px, 26vh, 240px); }
+    }
+    .player-row{
+      display:flex;
+      align-items:center;
+      gap:12px;
+      justify-content:space-between;
+      margin-bottom: 10px;
+    }
+    .track{
+      min-width:0;
+    }
+    .track .title{
+      font-weight: 650;
+      font-size: 14px;
+      margin:0;
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+    }
+    .track .meta{
+      margin:4px 0 0;
+      font-size: 12px;
+      color: var(--muted);
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+    }
+
+    .play{
+      width: 48px;
+      height: 48px;
+      border-radius: 999px;
+      border: 1px solid var(--stroke);
+      background: linear-gradient(135deg, rgba(91,124,250,.35), rgba(139,92,246,.28));
+      box-shadow: var(--shadow-soft);
+      cursor:pointer;
+      display:grid;
+      place-items:center;
+      transition: transform .2s ease, filter .2s ease;
+    }
+    .play:hover{ transform: translateY(-1px); filter: brightness(1.04); }
+    .play:active{ transform: translateY(0px) scale(.98); }
+
+    .bar{
+      display:flex;
+      align-items:center;
+      gap:10px;
+    }
+    .time{
+      font-variant-numeric: tabular-nums;
+      color: var(--muted);
+      font-size: 12px;
+      min-width: 42px;
+      text-align:center;
+    }
+    input[type="range"]{
+      width:100%;
+      accent-color: var(--accent);
+    }
+
+    /* Footer note (hidden to keep everything fixed, no scrolling) */
+    .hint{ display:none; }
+
+    /* Reduced motion */
+    @media (prefers-reduced-motion: reduce){
+      .slides, .navbtn, .btn, .play, .blob{ transition:none !important; animation:none !important; }
+    }
+
+    /* Focus */
+    :focus-visible{
+      outline: 2px solid color-mix(in oklab, var(--accent) 65%, white 35%);
+      outline-offset: 2px;
+      border-radius: 10px;
+    }
+
+    .sr-only{
+      position:absolute!important;
+      width:1px;height:1px;
+      padding:0;margin:-1px;
+      overflow:hidden;clip:rect(0,0,0,0);
+      white-space:nowrap;border:0;
+    }
+  </style>
+</head>
+<body>
+  <div class="blobs" aria-hidden="true">
+    <div class="blob" style="left:-10%; top:-10%;"></div>
+    <div class="blob"></div>
+    <div class="blob"></div>
+  </div>
+
+  <div class="wrap">
+    <header>
+      <div class="brand">
+        <h1>💌 A Little Glass Postcard</h1>
+        <p>Elegant, ethereal, contemporary — built for mobile → desktop.</p>
+      </div>
+
+      <div class="top-actions">
+        <div class="chip" role="group" aria-label="Postcard controls">
+          <button id="themeBtn" type="button" aria-label="Toggle theme" title="Toggle theme">🌙</button>
+          <span id="themeLabel">Light</span>
+        </div>
+      </div>
+    </header>
+
+    <main class="grid">
+      <!-- Image Slider / Gallery -->
+      <section class="card slider" aria-label="Image slider" id="slider">
+        <div class="slides" id="slides" aria-live="polite"></div>
+
+        <div class="slider-ui">
+          <button class="navbtn" id="prevBtn" type="button" aria-label="Previous image">←</button>
+          <div class="pill" id="counter" aria-label="Slide counter">1 / 1</div>
+          <button class="navbtn" id="nextBtn" type="button" aria-label="Next image">→</button>
+        </div>
+
+        <div class="dots" id="dots" aria-label="Slide navigation"></div>
+
+        <span class="sr-only" id="liveStatus" aria-live="polite"></span>
+      </section>
+
+      <!-- Text + Music -->
+      <section class="stack" aria-label="Message and music">
+        <!-- Text Content -->
+        <div class="card panel" aria-label="Postcard message">
+          <div class="message message-desktop" id="messageDesktop" role="note" aria-label="Message">
+Hey you —
+
+Just a small reminder: you’re doing better than you think.
+Wish I could bottle this calm, glassy vibe and mail it to you.
+
+✨
+          </div>
+          <div class="message message-mobile" id="messageMobile" role="note" aria-label="Message">
+            Hey you — Just a small reminder: you’re doing better than you think. ✨
+          </div>
+        </div>
+
+        <!-- Music Player -->
+        <div class="card player" aria-label="Music player">
+          <div class="player-row">
+            <div class="track">
+              <p class="title" id="trackTitle">Soft Ambient Loop</p>
+              <p class="meta" id="trackMeta">Tap play — minimal controls, maximum vibe.</p>
+            </div>
+            <button class="play" id="playBtn" type="button" aria-label="Play" title="Play/Pause">
+              <span id="playIcon" aria-hidden="true">▶</span>
+            </button>
+          </div>
+
+          <div class="bar">
+            <span class="time" id="curTime">0:00</span>
+            <input id="progress" type="range" min="0" max="1000" value="0" aria-label="Playback progress" />
+            <span class="time" id="durTime">0:00</span>
+          </div>
+
+          <!-- Replace src with your own file (local or URL). -->
+          <audio id="audio" preload="metadata"></audio>
+
+          <p class="hint">Tip: replace <code>music.mp3</code> + the image URLs in the script to personalize.</p>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    // --------------------------
+    // Config-driven content
+    // --------------------------
+    // Put a file named `config.json` in the SAME folder as this HTML.
+    // Example `config.json`:
+    // {
+    //   "title": "💌 A Little Glass Postcard",
+    //   "subtitle": "Elegant, ethereal, contemporary — built for mobile → desktop.",
+    //   "images": [
+    //     {"src": "images/1.jpg", "alt": "First"},
+    //     {"src": "images/2.jpg", "alt": "Second"}
+    //   ],
+    //   "message": {
+    //     "desktop": [
+    //       "Hey you —",
+    //       "",
+    //       "Just a small reminder: you’re doing better than you think.",
+    //       "Wish I could bottle this calm, glassy vibe and mail it to you.",
+    //       "",
+    //       "✨"
+    //     ],
+    //     "mobile": "Hey you — Just a small reminder: you’re doing better than you think. ✨"
+    //   },
+    //   "music": {
+    //     "src": "music.mp3",
+    //     "type": "audio/mpeg",
+    //     "title": "Soft Ambient Loop",
+    //     "meta": "Tap play — minimal controls, maximum vibe."
+    //   },
+    //   "slider": { "autoplayMs": 5200 }
+    // }
+
+    // --------------------------
+    // Theme (default: subtle light)
+    // --------------------------
+    (function themeInit(){
+      const root = document.documentElement;
+      const themeBtn = document.getElementById('themeBtn');
+      const themeLabel = document.getElementById('themeLabel');
+
+      const stored = localStorage.getItem('postcard-theme');
+      const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+
+      const initial = stored || (prefersDark ? 'dark' : 'light');
+      setTheme(initial);
+
+      themeBtn.addEventListener('click', () => {
+        const next = (root.getAttribute('data-theme') === 'dark') ? 'light' : 'dark';
+        setTheme(next);
+      });
+
+      function setTheme(mode){
+        if(mode === 'dark'){
+          root.setAttribute('data-theme', 'dark');
+          themeBtn.textContent = '☀️';
+          themeBtn.setAttribute('aria-label', 'Switch to light mode');
+          themeLabel.textContent = 'Dark';
+        }else{
+          root.removeAttribute('data-theme');
+          themeBtn.textContent = '🌙';
+          themeBtn.setAttribute('aria-label', 'Switch to dark mode');
+          themeLabel.textContent = 'Light';
+        }
+        localStorage.setItem('postcard-theme', mode);
+      }
+    })();
+
+    // --------------------------
+    // App bootstrap
+    // --------------------------
+    (async function initApp(){
+      const fallbackConfig = {
+        title: '💌 A Little Glass Postcard',
+        subtitle: 'Elegant, ethereal, contemporary — built for mobile → desktop.',
+        images: [
+          { src: "https://images.unsplash.com/photo-1526481280695-3c687fd643ed?auto=format&fit=crop&w=1400&q=70", alt: "Soft light over mountains" },
+          { src: "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1400&q=70", alt: "City lights at dusk" },
+          { src: "https://images.unsplash.com/photo-1519681393784-d120267933ba?auto=format&fit=crop&w=1400&q=70", alt: "Minimal snowy landscape" }
+        ],
+        message: {
+          desktop: [
+            'Hey you —',
+            '',
+            'Just a small reminder: you’re doing better than you think.',
+            'Wish I could bottle this calm, glassy vibe and mail it to you.',
+            '',
+            '✨'
+          ],
+          mobile: 'Hey you — Just a small reminder: you’re doing better than you think. ✨'
+        },
+        music: {
+          src: 'music.mp3',
+          type: 'audio/mpeg',
+          title: 'Soft Ambient Loop',
+          meta: 'Tap play — minimal controls, maximum vibe.'
+        },
+        slider: { autoplayMs: 5200 }
+      };
+
+      const config = await loadConfig('fourth/config.json') || fallbackConfig;
+      applyConfig(config);
+      const sliderState = createSlider(config);
+      createPlayer(config);
+
+      window.__postcard = { config, sliderState };
+    })();
+
+    async function loadConfig(path){
+      try{
+        const res = await fetch(path, { cache: 'no-store' });
+        if(!res.ok) throw new Error(`HTTP ${res.status}`);
+        return await res.json();
+      }catch(err){
+        console.warn('[postcard] config.json missing/invalid; using fallback defaults.', err);
+        return null;
+      }
+    }
+
+    function applyConfig(cfg){
+      // Header
+      const h1 = document.querySelector('.brand h1');
+      const p = document.querySelector('.brand p');
+      if(h1 && typeof cfg.title === 'string') h1.textContent = cfg.title;
+      if(p && typeof cfg.subtitle === 'string') p.textContent = cfg.subtitle;
+
+      // Message (desktop can be string OR array of lines)
+      const desktopEl = document.getElementById('messageDesktop');
+      const mobileEl = document.getElementById('messageMobile');
+
+      const desktopRaw = cfg.message && cfg.message.desktop;
+      const desktopText = Array.isArray(desktopRaw) ? desktopRaw.join('\n') : String(desktopRaw || '');
+      const mobileText = (cfg.message && typeof cfg.message.mobile === 'string')
+        ? cfg.message.mobile
+        : singleLine(desktopText);
+
+      if(desktopEl) desktopEl.textContent = desktopText;
+      if(mobileEl) mobileEl.textContent = mobileText;
+
+      // Music labels
+      const titleEl = document.getElementById('trackTitle');
+      const metaEl = document.getElementById('trackMeta');
+      if(titleEl && cfg.music && typeof cfg.music.title === 'string') titleEl.textContent = cfg.music.title;
+      if(metaEl && cfg.music && typeof cfg.music.meta === 'string') metaEl.textContent = cfg.music.meta;
+
+      // Music source
+      const audio = document.getElementById('audio');
+      if(audio && cfg.music && typeof cfg.music.src === 'string'){
+        audio.src = cfg.music.src;
+        audio.load();
+      }
+    }
+
+    function singleLine(s){
+      // no fancy regex escapes (keeps this file friendly for many bundlers/hosts)
+      let out = String(s || '');
+      out = out.replaceAll('\n', ' ').replaceAll('\t', ' ').replaceAll('\r', ' ');
+      out = out.replace(/ +/g, ' ').trim();
+      return out;
+    }
+
+    // --------------------------
+    // Image Slider / Gallery (config-driven)
+    // --------------------------
+    function createSlider(cfg){
+      const images = Array.isArray(cfg.images) && cfg.images.length ? cfg.images : [];
+
+      const slidesEl = document.getElementById('slides');
+      const dotsEl = document.getElementById('dots');
+      const counterEl = document.getElementById('counter');
+      const liveStatus = document.getElementById('liveStatus');
+      const prevBtn = document.getElementById('prevBtn');
+      const nextBtn = document.getElementById('nextBtn');
+      const slider = document.getElementById('slider');
+
+      let index = 0;
+      let timer = null;
+      const AUTOPLAY_MS = Number(cfg.slider && cfg.slider.autoplayMs) || 5200;
+
+      slidesEl.innerHTML = images.map(img => `
+        <div class="slide">
+          <img src="${escapeAttr(img.src)}" alt="${escapeAttr(img.alt || '')}" loading="lazy" />
+        </div>
+      `).join('');
+
+      dotsEl.innerHTML = images.map((_, i) => `
+        <button class="dot" type="button" aria-label="Go to image ${i+1}" aria-current="${i===0 ? 'true' : 'false'}" data-i="${i}"></button>
+      `).join('');
+
+      const dots = Array.from(dotsEl.querySelectorAll('.dot'));
+
+      function render(){
+        slidesEl.style.transform = `translateX(${-index * 100}%)`;
+        counterEl.textContent = `${index + 1} / ${images.length || 1}`;
+        dots.forEach((d, i) => d.setAttribute('aria-current', i === index ? 'true' : 'false'));
+        if(images.length){
+          liveStatus.textContent = `Image ${index + 1} of ${images.length}: ${images[index].alt || ''}`;
+        }else{
+          liveStatus.textContent = 'No images configured.';
+        }
+      }
+
+      function goTo(i){
+        if(!images.length) return;
+        index = (i + images.length) % images.length;
+        render();
+      }
+
+      function next(){ goTo(index + 1); }
+      function prev(){ goTo(index - 1); }
+
+      prevBtn.addEventListener('click', () => { prev(); restartAutoplay(); });
+      nextBtn.addEventListener('click', () => { next(); restartAutoplay(); });
+
+      dotsEl.addEventListener('click', (e) => {
+        const btn = e.target.closest('button.dot');
+        if(!btn) return;
+        goTo(Number(btn.dataset.i));
+        restartAutoplay();
+      });
+
+      function startAutoplay(){
+        stopAutoplay();
+        if(images.length > 1) timer = setInterval(next, AUTOPLAY_MS);
+      }
+      function stopAutoplay(){
+        if(timer){ clearInterval(timer); timer = null; }
+      }
+      function restartAutoplay(){ startAutoplay(); }
+
+      slider.addEventListener('mouseenter', stopAutoplay);
+      slider.addEventListener('mouseleave', startAutoplay);
+      slider.addEventListener('focusin', stopAutoplay);
+      slider.addEventListener('focusout', startAutoplay);
+
+      window.addEventListener('keydown', (e) => {
+        const tag = document.activeElement && document.activeElement.tagName;
+        if(tag === 'TEXTAREA' || tag === 'INPUT') return;
+        if(e.key === 'ArrowLeft'){ prev(); restartAutoplay(); }
+        if(e.key === 'ArrowRight'){ next(); restartAutoplay(); }
+      });
+
+      let startX = null;
+      slider.addEventListener('touchstart', (e) => {
+        if(!e.touches || e.touches.length !== 1) return;
+        startX = e.touches[0].clientX;
+      }, { passive:true });
+
+      slider.addEventListener('touchend', (e) => {
+        if(startX == null) return;
+        const endX = (e.changedTouches && e.changedTouches[0]) ? e.changedTouches[0].clientX : startX;
+        const dx = endX - startX;
+        if(Math.abs(dx) > 45){
+          dx > 0 ? prev() : next();
+          restartAutoplay();
+        }
+        startX = null;
+      });
+
+      render();
+      startAutoplay();
+      return { goTo, next, prev, stopAutoplay, startAutoplay };
+    }
+
+    function escapeAttr(s){
+      return String(s ?? '').replace(/[&<>"']/g, (c) => ({
+        '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
+      }[c]));
+    }
+
+    // --------------------------
+    // Music Player (config-driven)
+    // --------------------------
+    function createPlayer(cfg){
+      const audio = document.getElementById('audio');
+      const playBtn = document.getElementById('playBtn');
+      const playIcon = document.getElementById('playIcon');
+      const progress = document.getElementById('progress');
+      const curTime = document.getElementById('curTime');
+      const durTime = document.getElementById('durTime');
+
+      let seeking = false;
+
+      function fmt(t){
+        if(!isFinite(t)) return '0:00';
+        const m = Math.floor(t / 60);
+        const s = Math.floor(t % 60);
+        return `${m}:${String(s).padStart(2,'0')}`;
+      }
+
+      function setPlayingUI(isPlaying){
+        playIcon.textContent = isPlaying ? '❚❚' : '▶';
+        playBtn.setAttribute('aria-label', isPlaying ? 'Pause' : 'Play');
+      }
+
+      playBtn.addEventListener('click', async () => {
+        if(audio.paused){
+          try{ await audio.play(); }catch{}
+        }else{
+          audio.pause();
+        }
+      });
+
+      audio.addEventListener('loadedmetadata', () => {
+        durTime.textContent = fmt(audio.duration);
+      });
+
+      audio.addEventListener('timeupdate', () => {
+        if(seeking) return;
+        curTime.textContent = fmt(audio.currentTime);
+        const pct = audio.duration ? (audio.currentTime / audio.duration) : 0;
+        progress.value = Math.round(pct * 1000);
+      });
+
+      audio.addEventListener('play', () => setPlayingUI(true));
+      audio.addEventListener('pause', () => setPlayingUI(false));
+      audio.addEventListener('ended', () => setPlayingUI(false));
+
+      progress.addEventListener('input', () => {
+        seeking = true;
+        const pct = Number(progress.value) / 1000;
+        const t = (audio.duration || 0) * pct;
+        curTime.textContent = fmt(t);
+      });
+
+      progress.addEventListener('change', () => {
+        const pct = Number(progress.value) / 1000;
+        if(audio.duration) audio.currentTime = audio.duration * pct;
+        seeking = false;
+      });
+
+      playBtn.addEventListener('keydown', (e) => {
+        if(e.code === 'Space'){
+          e.preventDefault();
+          playBtn.click();
+        }
+      });
+
+      audio.addEventListener('error', () => {
+        const src = (cfg.music && cfg.music.src) ? cfg.music.src : '(unknown)';
+        console.warn(`[postcard] Could not load audio file: ${src}`);
+      });
+    }
+  </script>
+</body>
+</html>
