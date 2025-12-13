@@ -2,8 +2,8 @@
   "title": "💫 Celebrating Your Brilliance",
   "subtitle": "An elegant nod to the strength and spirit you embody.",
   "images": [
-    {"src": "1.jpg", "alt": "A woman confidently walking forward"},
-    {"src": "2.jpg", "alt": "A minimal, artistic floral design"}
+    {"src": "first/1.jpg", "alt": "A woman confidently walking forward"},
+    {"src": "first/2.jpg", "alt": "A minimal, artistic floral design"}
   ],
   "message": {
     "desktop": [
