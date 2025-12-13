@@ -771,6 +771,7 @@ Wish I could bottle this calm, glassy vibe and mail it to you.
     // Image Slider / Gallery (config-driven)
     // --------------------------
     function createSlider(cfg){
+      slidesEl.style.width = `${images.length * 100}%`;
       const images = Array.isArray(cfg.images) && cfg.images.length ? cfg.images : [];
 
       const slidesEl = document.getElementById('slides');
@@ -780,7 +781,7 @@ Wish I could bottle this calm, glassy vibe and mail it to you.
       const prevBtn = document.getElementById('prevBtn');
       const nextBtn = document.getElementById('nextBtn');
       const slider = document.getElementById('slider');
-
+      
       let index = 0;
       let timer = null;
       const AUTOPLAY_MS = Number(cfg.slider && cfg.slider.autoplayMs) || 5200;
