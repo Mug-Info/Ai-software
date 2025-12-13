@@ -1,0 +1,27 @@
+{
+  "title": "💌 Celebrating You! Happy Women's Day",
+  "subtitle": "Elegant, ethereal, contemporary — built for mobile → desktop.",
+  "images": [
+    {"src": "images/1.jpg", "alt": "First"},
+    {"src": "images/2.jpg", "alt": "Second"},
+    {"src": "images/3.jpg", "alt": "Third"}
+  ],
+  "message": {
+    "desktop": [
+      "Hey you —",
+      "",
+      "This is the multiline message for bigger screens.",
+      "It keeps line breaks exactly as written.",
+      "",
+      "✨"
+    ],
+    "mobile": "Hey you — Single line for mobile ✨"
+  },
+  "music": {
+    "src": "music.mp3",
+    "type": "audio/mpeg",
+    "title": "Soft Ambient Loop",
+    "meta": "Tap play — minimal controls, maximum vibe."
+  },
+  "slider": { "autoplayMs": 5200 }
+}
