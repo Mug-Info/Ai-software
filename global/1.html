@@ -1,4 +1,3 @@
-<html></html>
 <!--
 Modern Glass-Themed Responsive Online Postcard
 Copyright (C) 2025
@@ -14,6 +13,7 @@ If not, see <https://www.gnu.org/licenses/>.
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Modern Glass Postcard</title>
   <meta name="color-scheme" content="light dark" />
+  <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <style>
     :root{
       /* Default: subtle light mode */
@@ -474,6 +474,33 @@ If not, see <https://www.gnu.org/licenses/>.
       overflow:hidden;clip:rect(0,0,0,0);
       white-space:nowrap;border:0;
     }
+    /* Direction-aware typography */
+    html[dir="rtl"] body{
+    direction: rtl;
+    text-align: right;
+    }
+
+    html[dir="ltr"] body{
+    direction: ltr;
+    text-align: left;
+    }
+
+    /* Message block alignment */
+    html[dir="rtl"] .message{
+    text-align: right;
+    }
+
+    html[dir="rtl"] .track{
+    text-align: right;
+    }
+
+    /* Slider controls stay LTR-friendly */
+    html[dir="rtl"] .slider-ui{
+    direction: ltr;
+    }
+    html[dir="rtl"] body{
+    font-family: "Vazirmatn", "IRANSans", system-ui, sans-serif;
+    }
   </style>
 </head>
 <body>
@@ -658,7 +685,7 @@ Wish I could bottle this calm, glassy vibe and mail it to you.
         slider: { autoplayMs: 5200 }
       };
 
-      const config = await loadConfig('second/config.json') || fallbackConfig;
+      const config = await loadConfig('first/config.json') || fallbackConfig;
       applyConfig(config);
       const sliderState = createSlider(config);
       createPlayer(config);
@@ -676,39 +703,60 @@ Wish I could bottle this calm, glassy vibe and mail it to you.
         return null;
       }
     }
-
+    function detectDirection(text){
+        // Persian / Arabic unicode range
+        const rtlRegex = /[\u0600-\u06FF\u0750-\u077F\u08A0-\u08FF]/;
+        return rtlRegex.test(text) ? 'rtl' : 'ltr';
+        }
     function applyConfig(cfg){
-      // Header
-      const h1 = document.querySelector('.brand h1');
-      const p = document.querySelector('.brand p');
-      if(h1 && typeof cfg.title === 'string') h1.textContent = cfg.title;
-      if(p && typeof cfg.subtitle === 'string') p.textContent = cfg.subtitle;
+        const root = document.documentElement;
 
-      // Message (desktop can be string OR array of lines)
-      const desktopEl = document.getElementById('messageDesktop');
-      const mobileEl = document.getElementById('messageMobile');
+        // Determine direction
+        let dir = 'ltr';
 
-      const desktopRaw = cfg.message && cfg.message.desktop;
-      const desktopText = Array.isArray(desktopRaw) ? desktopRaw.join('\n') : String(desktopRaw || '');
-      const mobileText = (cfg.message && typeof cfg.message.mobile === 'string')
-        ? cfg.message.mobile
-        : singleLine(desktopText);
+        if(cfg.direction && cfg.direction !== 'auto'){
+            dir = cfg.direction;
+        }else{
+            const sampleText =
+            (cfg.message?.desktop && Array.isArray(cfg.message.desktop)
+                ? cfg.message.desktop.join(' ')
+                : cfg.message?.desktop || cfg.message?.mobile || '');
+            dir = detectDirection(sampleText);
+        }
 
-      if(desktopEl) desktopEl.textContent = desktopText;
-      if(mobileEl) mobileEl.textContent = mobileText;
+        root.setAttribute('dir', dir);
+        root.setAttribute('lang', cfg.lang || (dir === 'rtl' ? 'fa' : 'en'));
+        // Header
+        const h1 = document.querySelector('.brand h1');
+        const p = document.querySelector('.brand p');
+        if(h1 && typeof cfg.title === 'string') h1.textContent = cfg.title;
+        if(p && typeof cfg.subtitle === 'string') p.textContent = cfg.subtitle;
 
-      // Music labels
-      const titleEl = document.getElementById('trackTitle');
-      const metaEl = document.getElementById('trackMeta');
-      if(titleEl && cfg.music && typeof cfg.music.title === 'string') titleEl.textContent = cfg.music.title;
-      if(metaEl && cfg.music && typeof cfg.music.meta === 'string') metaEl.textContent = cfg.music.meta;
+        // Message (desktop can be string OR array of lines)
+        const desktopEl = document.getElementById('messageDesktop');
+        const mobileEl = document.getElementById('messageMobile');
 
-      // Music source
-      const audio = document.getElementById('audio');
-      if(audio && cfg.music && typeof cfg.music.src === 'string'){
-        audio.src = cfg.music.src;
-        audio.load();
-      }
+        const desktopRaw = cfg.message && cfg.message.desktop;
+        const desktopText = Array.isArray(desktopRaw) ? desktopRaw.join('\n') : String(desktopRaw || '');
+        const mobileText = (cfg.message && typeof cfg.message.mobile === 'string')
+            ? cfg.message.mobile
+            : singleLine(desktopText);
+
+        if(desktopEl) desktopEl.textContent = desktopText;
+        if(mobileEl) mobileEl.textContent = mobileText;
+
+        // Music labels
+        const titleEl = document.getElementById('trackTitle');
+        const metaEl = document.getElementById('trackMeta');
+        if(titleEl && cfg.music && typeof cfg.music.title === 'string') titleEl.textContent = cfg.music.title;
+        if(metaEl && cfg.music && typeof cfg.music.meta === 'string') metaEl.textContent = cfg.music.meta;
+
+        // Music source
+        const audio = document.getElementById('audio');
+        if(audio && cfg.music && typeof cfg.music.src === 'string'){
+            audio.src = cfg.music.src;
+            audio.load();
+        }
     }
 
     function singleLine(s){
@@ -732,7 +780,7 @@ Wish I could bottle this calm, glassy vibe and mail it to you.
       const prevBtn = document.getElementById('prevBtn');
       const nextBtn = document.getElementById('nextBtn');
       const slider = document.getElementById('slider');
-
+      
       let index = 0;
       let timer = null;
       const AUTOPLAY_MS = Number(cfg.slider && cfg.slider.autoplayMs) || 5200;
@@ -750,15 +798,24 @@ Wish I could bottle this calm, glassy vibe and mail it to you.
       const dots = Array.from(dotsEl.querySelectorAll('.dot'));
 
       function render(){
-        slidesEl.style.transform = `translateX(${-index * 100}%)`;
+        const slides = slidesEl.children;
+
+        for(let i = 0; i < slides.length; i++){
+          slides[i].style.display = (i === index) ? 'block' : 'none';
+        }
+
         counterEl.textContent = `${index + 1} / ${images.length || 1}`;
-        dots.forEach((d, i) => d.setAttribute('aria-current', i === index ? 'true' : 'false'));
+
+        dots.forEach((d, i) =>
+          d.setAttribute('aria-current', i === index ? 'true' : 'false')
+        );
+
         if(images.length){
-          liveStatus.textContent = `Image ${index + 1} of ${images.length}: ${images[index].alt || ''}`;
-        }else{
-          liveStatus.textContent = 'No images configured.';
+          liveStatus.textContent =
+            `Image ${index + 1} of ${images.length}: ${images[index].alt || ''}`;
         }
       }
+
 
       function goTo(i){
         if(!images.length) return;
