@@ -473,6 +473,30 @@ If not, see <https://www.gnu.org/licenses/>.
       overflow:hidden;clip:rect(0,0,0,0);
       white-space:nowrap;border:0;
     }
+    /* Direction-aware typography */
+    html[dir="rtl"] body{
+    direction: rtl;
+    text-align: right;
+    }
+
+    html[dir="ltr"] body{
+    direction: ltr;
+    text-align: left;
+    }
+
+    /* Message block alignment */
+    html[dir="rtl"] .message{
+    text-align: right;
+    }
+
+    html[dir="rtl"] .track{
+    text-align: right;
+    }
+
+    /* Slider controls stay LTR-friendly */
+    html[dir="rtl"] .slider-ui{
+    direction: ltr;
+    }
   </style>
 </head>
 <body>
@@ -675,39 +699,60 @@ Wish I could bottle this calm, glassy vibe and mail it to you.
         return null;
       }
     }
-
+    function detectDirection(text){
+        // Persian / Arabic unicode range
+        const rtlRegex = /[\u0600-\u06FF\u0750-\u077F\u08A0-\u08FF]/;
+        return rtlRegex.test(text) ? 'rtl' : 'ltr';
+        }
     function applyConfig(cfg){
-      // Header
-      const h1 = document.querySelector('.brand h1');
-      const p = document.querySelector('.brand p');
-      if(h1 && typeof cfg.title === 'string') h1.textContent = cfg.title;
-      if(p && typeof cfg.subtitle === 'string') p.textContent = cfg.subtitle;
+        const root = document.documentElement;
 
-      // Message (desktop can be string OR array of lines)
-      const desktopEl = document.getElementById('messageDesktop');
-      const mobileEl = document.getElementById('messageMobile');
+        // Determine direction
+        let dir = 'ltr';
 
-      const desktopRaw = cfg.message && cfg.message.desktop;
-      const desktopText = Array.isArray(desktopRaw) ? desktopRaw.join('\n') : String(desktopRaw || '');
-      const mobileText = (cfg.message && typeof cfg.message.mobile === 'string')
-        ? cfg.message.mobile
-        : singleLine(desktopText);
+        if(cfg.direction && cfg.direction !== 'auto'){
+            dir = cfg.direction;
+        }else{
+            const sampleText =
+            (cfg.message?.desktop && Array.isArray(cfg.message.desktop)
+                ? cfg.message.desktop.join(' ')
+                : cfg.message?.desktop || cfg.message?.mobile || '');
+            dir = detectDirection(sampleText);
+        }
 
-      if(desktopEl) desktopEl.textContent = desktopText;
-      if(mobileEl) mobileEl.textContent = mobileText;
+        root.setAttribute('dir', dir);
+        root.setAttribute('lang', cfg.lang || (dir === 'rtl' ? 'fa' : 'en'));
+        // Header
+        const h1 = document.querySelector('.brand h1');
+        const p = document.querySelector('.brand p');
+        if(h1 && typeof cfg.title === 'string') h1.textContent = cfg.title;
+        if(p && typeof cfg.subtitle === 'string') p.textContent = cfg.subtitle;
 
-      // Music labels
-      const titleEl = document.getElementById('trackTitle');
-      const metaEl = document.getElementById('trackMeta');
-      if(titleEl && cfg.music && typeof cfg.music.title === 'string') titleEl.textContent = cfg.music.title;
-      if(metaEl && cfg.music && typeof cfg.music.meta === 'string') metaEl.textContent = cfg.music.meta;
+        // Message (desktop can be string OR array of lines)
+        const desktopEl = document.getElementById('messageDesktop');
+        const mobileEl = document.getElementById('messageMobile');
 
-      // Music source
-      const audio = document.getElementById('audio');
-      if(audio && cfg.music && typeof cfg.music.src === 'string'){
-        audio.src = cfg.music.src;
-        audio.load();
-      }
+        const desktopRaw = cfg.message && cfg.message.desktop;
+        const desktopText = Array.isArray(desktopRaw) ? desktopRaw.join('\n') : String(desktopRaw || '');
+        const mobileText = (cfg.message && typeof cfg.message.mobile === 'string')
+            ? cfg.message.mobile
+            : singleLine(desktopText);
+
+        if(desktopEl) desktopEl.textContent = desktopText;
+        if(mobileEl) mobileEl.textContent = mobileText;
+
+        // Music labels
+        const titleEl = document.getElementById('trackTitle');
+        const metaEl = document.getElementById('trackMeta');
+        if(titleEl && cfg.music && typeof cfg.music.title === 'string') titleEl.textContent = cfg.music.title;
+        if(metaEl && cfg.music && typeof cfg.music.meta === 'string') metaEl.textContent = cfg.music.meta;
+
+        // Music source
+        const audio = document.getElementById('audio');
+        if(audio && cfg.music && typeof cfg.music.src === 'string'){
+            audio.src = cfg.music.src;
+            audio.load();
+        }
     }
 
     function singleLine(s){
