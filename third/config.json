@@ -6,7 +6,7 @@
   "images": [
     { "src": "global/4.jpg", "alt": "1" },
     { "src": "global/2.jpg", "alt": "2" },
-    { "src": "global/spics/third.png", "alt": "3" }
+    { "src": "global/spics/third.jpg", "alt": "3" }
   ],
   "message": {
     "desktop": [
